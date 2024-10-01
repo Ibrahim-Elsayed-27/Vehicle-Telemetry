@@ -1,6 +1,10 @@
 #include "../headers/vehicle.hpp"
 
-/// Constructor for the Vehicle class, initializing all components.
+/**
+ * @brief Constructor for the Vehicle class, initializing all components.
+ * 
+ * This constructor initializes all the sensors, ECUs, and the logger for the vehicle.
+ */
 Vehicle::Vehicle() :
     speedSensor(std::make_shared<SpeedSensor>()),
     fuelSensor(std::make_shared<FuelSensor>()),
@@ -13,14 +17,20 @@ Vehicle::Vehicle() :
     logger(Logger::GetInstance("E:\\Mozakra\\Software\\OOP\\Vehicle_Telemetry\\log.txt"))
 {}
 
-/// Singleton pattern implementation to get a reference to the Vehicle instance.
-/// @return Reference to the Vehicle instance.
+/**
+ * @brief Singleton pattern implementation to get a reference to the Vehicle instance.
+ * @return Reference to the Vehicle instance.
+ */
 Vehicle& Vehicle::GetInstance() {
     static Vehicle instance;
     return instance;
 }
 
-/// Updates all sensors and logs the results.
+/**
+ * @brief Updates all sensors and logs the results.
+ * 
+ * This function updates the state of all sensors in the vehicle and logs each update.
+ */
 void Vehicle::updateSensors() {
     logger.Log("\n\nUpdating sensors.");
 
@@ -41,7 +51,12 @@ void Vehicle::updateSensors() {
     logger.Log("Radar sensor updated.");
 }
 
-/// Implements adaptive cruise control logic based on radar sensor readings.
+/**
+ * @brief Implements adaptive cruise control logic based on radar sensor readings.
+ * 
+ * This function adjusts the vehicle's speed based on the distance to the vehicle ahead,
+ * as detected by the radar sensor.
+ */
 void Vehicle::adaptiveCruiseControl() {
     logger.Log("\n\nRunning adaptive cruise control.");
 
@@ -52,7 +67,7 @@ void Vehicle::adaptiveCruiseControl() {
         logger.Log("Distance < 50, slowing down.");
         engineECU->setThrottlePosition(30);
         brakeECU->setBrakePressure(50);
-    } else if (distance >= 50 && distance < 100) {
+    } else if (distance < 100) {
         logger.Log("Distance between 50 and 100, maintaining speed.");
         engineECU->setThrottlePosition(50);
         brakeECU->setBrakePressure(0);
@@ -63,74 +78,58 @@ void Vehicle::adaptiveCruiseControl() {
     }
 }
 
-/// Displays the current vehicle status on the dashboard.
+/**
+ * @brief Displays the current vehicle status on the dashboard.
+ * 
+ * This function creates a string representation of the vehicle's current status,
+ * including all sensor readings and ECU states, and outputs it to the console.
+ */
 void Vehicle::displayDashboard() {
     logger.Log("\n\nDisplaying vehicle dashboard.");
 
-    std::cout << "\n======= Vehicle Dashboard =======" << std::endl;
-    std::cout << *speedSensor << std::endl;
-    std::cout << *fuelSensor << std::endl;
-    std::cout << *tempSensor << std::endl;
-    std::cout << *battery << std::endl;
-    std::cout << *radarSensor << std::endl;
-    std::cout << "Throttle Position: " << engineECU->getThrottlePosition() << "%" << std::endl;
-    std::cout << "Brake Pressure: " << brakeECU->getBrakePressure() << "%" << std::endl;
-    std::cout << "Current Gear: " << transmissionECU->getGear() << std::endl;
-    std::cout << "=================================\n" << std::endl;
+    std::ostringstream dashboard;
+    dashboard << "\n======= Vehicle Dashboard =======\n"
+              << *speedSensor << '\n'
+              << *fuelSensor << '\n'
+              << *tempSensor << '\n'
+              << *battery << '\n'
+              << *radarSensor << '\n'
+              << "Throttle Position: " << engineECU->getThrottlePosition() << "%\n"
+              << "Brake Pressure: " << brakeECU->getBrakePressure() << "%\n"
+              << "Current Gear: " << transmissionECU->getGear() << '\n'
+              << "=================================\n";
+
+    std::cout << dashboard.str() << std::endl;
 }
 
-/// Runs diagnostic checks on the vehicle's components.
+/**
+ * @brief Runs diagnostic checks on the vehicle's components.
+ * 
+ * This function performs a series of checks on all vehicle sensors and components,
+ * logging the results and outputting warnings for any values outside of normal ranges.
+ */
 void Vehicle::runDiagnostics() {
     logger.Log("\n\nRunning diagnostics.");
     std::cout << "\n--- Diagnostics Report ---" << std::endl;
 
-    // Speed Check
-    double speed = speedSensor->readData();
-    logger.Log("Speed sensor read: " + std::to_string(speed));
-    if (speed > 120) {
-        logger.Log("Warning: High speed detected!");
-        std::cout << "Warning: High Speed Detected!" << std::endl;
-    }
+    auto checkAndLog = [this](const std::string& sensorName, double value, double threshold, const std::string& warningMessage) {
+        std::ostringstream logMessage;
+        logMessage << sensorName << " read: " << std::fixed << std::setprecision(2) << value;
+        logger.Log(logMessage.str());
 
-    // Fuel Level Check
-    double fuelLevel = fuelSensor->readData();
-    logger.Log("Fuel sensor read: " + std::to_string(fuelLevel));
-    if (fuelLevel < 5) {
-        logger.Log("Warning: Low fuel level!");
-        std::cout << "Warning: Low Fuel Level!" << std::endl;
-    }
+        if ((sensorName == "Speed" && value > threshold) || 
+            (sensorName != "Speed" && value < threshold)) {
+            logger.Log("Warning: " + warningMessage);
+            std::cout << "Warning: " << warningMessage << std::endl;
+        }
+    };
 
-    // Engine Temperature Check
-    double temp = tempSensor->readData();
-    logger.Log("Temperature sensor read: " + std::to_string(temp));
-    if (temp > 90) {
-        logger.Log("Warning: Engine overheating!");
-        std::cout << "Warning: Engine Overheating!" << std::endl;
-    }
-
-    // Battery Charge Level Check
-    double batteryCharge = battery->readCharge();
-    logger.Log("Battery charge level read: " + std::to_string(batteryCharge));
-    if (batteryCharge < 20) {
-        logger.Log("Warning: Low battery charge!");
-        std::cout << "Warning: Low Battery Charge!" << std::endl;
-    }
-
-    // Battery Temperature Check
-    double batteryTemp = battery->readTemperature();
-    logger.Log("Battery temperature read: " + std::to_string(batteryTemp));
-    if (batteryTemp > 40) {
-        logger.Log("Warning: Battery overheating!");
-        std::cout << "Warning: Battery Overheating!" << std::endl;
-    }
-
-    // Radar Distance Check
-    double radarDistance = radarSensor->readData();
-    logger.Log("Radar sensor read: " + std::to_string(radarDistance));
-    if (radarDistance < 20) {
-        logger.Log("Warning: Vehicle ahead too close!");
-        std::cout << "Warning: Vehicle Ahead Too Close!" << std::endl;
-    }
+    checkAndLog("Speed", speedSensor->readData(), 120, "High speed detected!");
+    checkAndLog("Fuel", fuelSensor->readData(), 5, "Low fuel level!");
+    checkAndLog("Temperature", tempSensor->readData(), 90, "Engine overheating!");
+    checkAndLog("Battery Charge", battery->readCharge(), 20, "Low battery charge!");
+    checkAndLog("Battery Temperature", battery->readTemperature(), 40, "Battery overheating!");
+    checkAndLog("Radar Distance", radarSensor->readData(), 20, "Vehicle ahead too close!");
 
     std::cout << "--- End of Diagnostics ---\n" << std::endl;
 }

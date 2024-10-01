@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <iomanip>      // For formatted output
+#include <random>
+
 class Battery {
 public:
     Battery();

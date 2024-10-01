@@ -1,8 +1,11 @@
 #ifndef SENSORS_HPP
 #define SENSORS_HPP
 
+#include <random>
+#include <cmath>
 #include <iostream>
 #include <iomanip>      // For formatted output
+
 // Sensors interface
 class Sensor {
 public:

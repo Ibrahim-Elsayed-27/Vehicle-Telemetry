@@ -5,10 +5,13 @@ SpeedSensor::SpeedSensor() : speed(0.0) {}
 
 /// Updates the speed sensor with a randomly generated value between 0 and 200 km/h.
 void SpeedSensor::update() {
-    speed = rand() % 201;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 200.0);
+    speed = dis(gen);
 }
 
-/// Reads the current speed from the sensor.
+/// Reads the current speed from the sensor.s
 /// @return The current speed in km/h.
 double SpeedSensor::readData() const {
     return speed;
@@ -19,7 +22,7 @@ double SpeedSensor::readData() const {
 /// @param sensor The SpeedSensor object to print.
 /// @return The output stream.
 std::ostream& operator<<(std::ostream& os, const SpeedSensor& sensor) {
-    os << "Speed: " << sensor.speed << " km/h";
+    os << "Speed: " << std::fixed << std::setprecision(2) << sensor.speed << " km/h";
     return os;
 }
 
@@ -28,11 +31,13 @@ FuelSensor::FuelSensor() : fuelLevel(50.0) {}
 
 /// Updates the fuel sensor by simulating fuel consumption.
 void FuelSensor::update() {
-    /// Calculate random fuel consumption between 0.1 and 0.5 liters
-    double consumption = (rand() % 5 + 1) * 0.1;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.1, 0.5);
+    double consumption = dis(gen);
 
     /// Decrease fuel level, ensuring it doesn't go below 0
-    fuelLevel = (fuelLevel - consumption > 0) ? fuelLevel - consumption : 0;
+    fuelLevel = std::max(0.0, fuelLevel - consumption);
 }
 
 /// Reads the current fuel level from the sensor.
@@ -55,8 +60,11 @@ TemperatureSensor::TemperatureSensor() : temperature(70.0), speed(0) {}
 
 /// Updates the temperature sensor based on current speed and random fluctuations.
 void TemperatureSensor::update() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(-2.0, 2.0);
     /// Calculate temperature based on speed and random fluctuations
-    temperature = 70.0 + (speed * 0.1) + (rand() % 5 - 2);
+    temperature = 70.0 + (speed * 0.1) + dis(gen);
 }
 
 /// Reads the current temperature from the sensor.
@@ -85,7 +93,10 @@ RadarSensor::RadarSensor() : distance(100.0) {}
 
 /// Updates the radar sensor with a randomly generated distance between 10 and 200 meters.
 void RadarSensor::update() {
-    distance = rand() % 191 + 10;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(10.0, 200.0);
+    distance = dis(gen);
 }
 
 /// Reads the current distance from the radar sensor.

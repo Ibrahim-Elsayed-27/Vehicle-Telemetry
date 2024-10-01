@@ -1,6 +1,12 @@
 #ifndef ECU_HPP
 #define ECU_HPP
 
+#include <algorithm>
+
+inline double clamp(double value, double low, double high) {
+    return value < low ? low : (value > high ? high : value);
+}
+
 class EngineControlUnit {
 public:
     EngineControlUnit();
