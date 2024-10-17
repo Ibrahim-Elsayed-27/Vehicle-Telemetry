@@ -5,6 +5,9 @@
 #include "ecu.hpp"
 #include "logger.hpp"
 #include "battery.hpp"
+#include "dashboard.hpp"
+#include "diagnostics.hpp"
+#include "acc.hpp"
 #include <memory>
 
 class Vehicle {
@@ -14,8 +17,7 @@ public:
     void adaptiveCruiseControl();
     void displayDashboard();
     void runDiagnostics();
-    static Vehicle &GetInstance();
-
+    Vehicle(const std::string& filePath);
 private:
     std::shared_ptr<SpeedSensor> speedSensor;
     std::shared_ptr<FuelSensor> fuelSensor;
@@ -26,9 +28,10 @@ private:
     std::shared_ptr<BrakeControlUnit> brakeECU;
     std::shared_ptr<TransmissionControlUnit> transmissionECU;
     Logger& logger;
-    Vehicle();
-    Vehicle(const Vehicle&) = delete;
-    void operator=(const Vehicle&) = delete;
+    std::unique_ptr<Dashboard> dashboard;
+    std::unique_ptr<VehicleDiagnostics> diagnostics;
+    std::unique_ptr<CruiseControlSystem> cruiseControl;
+    
 };
 
 #endif // VEHICLE_HPP

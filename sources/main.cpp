@@ -6,7 +6,7 @@
 /// Main entry point for the vehicle simulation.
 int main() {
     // Get the singleton instance of the Vehicle class
-    Vehicle& myCar = Vehicle::GetInstance();
+    Vehicle myCar = Vehicle("C:\\Users\\himah\\Desktop\\log.txt");
 
     // Main loop for continuous simulation
     while (true) {
