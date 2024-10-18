@@ -1,6 +1,3 @@
-Certainly! Here’s a sample README file for your Vehicle Telemetry project. You can customize it further based on your specific project details and any additional features or instructions you may have.
-
-```markdown
 # Vehicle Telemetry System
 
 ## Overview
