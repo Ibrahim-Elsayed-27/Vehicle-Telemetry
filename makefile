@@ -14,7 +14,7 @@ OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 EXEC = vehicle.exe
 
 # Create build directory if it doesn't exist
-$(shell mkdir $(BUILD_DIR) 2> NUL)
+$(shell mkdir -p $(BUILD_DIR))
 
 # Rule for the final executable
 $(EXEC): $(OBJS)
@@ -27,5 +27,5 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 # Clean rule
 .PHONY: clean
 clean:
-	if exist $(BUILD_DIR) rd /s /q $(BUILD_DIR)
-	if exist $(EXEC) del $(EXEC)
+	rm -rf $(BUILD_DIR)
+	rm -f $(EXEC)
